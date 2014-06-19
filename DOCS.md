@@ -1,6 +1,20 @@
 #Documentation
 ##Section 1 - Style and Structure
-Placeholder.
+###Comments
+In PokePL, comments are denoted using `~`.  
+`~this is a sample comment`  
+Comments may be at the end of a statement, or placed on their own line. Comments in the middle of statements are not valid.
+###Statements
+In PokePL, each line should contain one and only one complete statement. Statements/lines will be executed in order from top to bottom of the source file.  
+Therefore, additional whitespace beyond the newline characters is not required, but you may find it useful for organization and readability.
+###Blocks
+In PokePL, blocks (such as conditionals and loops) begin with their respective syntax and are terminated by an `OKAY` statement.  
+More details below.
+##Grouping
+Instead of traditional parentheses, grouping is done using Pokeball halfs. `(-` will open a group and `-)` will close it.  
+For example:  
+`(- 5 WITH 3 -) BY 2`  
+will evaluate to 16.
 
 ##Section 2 - Variable Declaration and Assignment
 Variables must be named after one of the original 151 Pokemon.  
@@ -46,7 +60,7 @@ less than: `<value> WEAKER THAN <value>`
 If blocks begin with `IS <expression>?` and terminate with a `OKAY` statement.  
 ```
 IS BULBASAUR SAME AS SQUIRTLE?
-	(- code -)
+	~code
 OKAY
 ```
 
@@ -54,11 +68,11 @@ Like most languages, if blocks can be extended to include elif and else.
 In such a case the `OKAY` statement will terminate the _entire_ block chain.  
 ```
 IS BULBASAUR SAME AS SQUIRTLE?  
-	(- code -)
+	~code
 OR IS BULBASAUR SAME AS CHARMANDER?
-	(- code -)
+	~code
 NO?
-	(- code -)
+	~code
 OKAY
 ```
 
@@ -67,7 +81,7 @@ There is only one type of loop in PokePL. It is the equivalnet of most languages
 The syntax is as follows:
 ```
 BATTLE <expression>
-	(- code -)
+	~code
 OKAY
 ```
 It is possible to move on to the next iteration, or break out of the loop completely using the keywords `FIGHT` and `RUN` respectively.  
@@ -81,6 +95,6 @@ LEVEL PIDGEY 0
 
 BATTLE PIDGEY WEAKER THAN 10
 	PIDGEY LEVELED UP
-	(- code -)
+	~code
 OKAY
 ```
