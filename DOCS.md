@@ -29,6 +29,8 @@ subtraction: `<value> LESS <value>`
 multiplication: `<value> BY <value>`  
 division: `<value> OVER <value>`
 
+unary increment shorthand: `<varname> LEVELED UP`
+
 ###String operations
 concatenation: `<value> JOIN <value>`
 
@@ -56,6 +58,29 @@ IS BULBASAUR SAME AS SQUIRTLE?
 OR IS BULBASAUR SAME AS CHARMANDER?
 	(- code -)
 NO?
+	(- code -)
+OKAY
+```
+
+##Section 6 - Loops
+There is only one type of loop in PokePL. It is the equivalnet of most languages' "while" loops.  
+The syntax is as follows:
+```
+BATTLE <expression>
+	(- code -)
+OKAY
+```
+It is possible to move on to the next iteration, or break out of the loop completely using the keywords `FIGHT` and `RUN` respectively.  
+This is logically equivalent to the typical `continue` and `break` syntax.
+
+While there are no native "for" loops in PokePL, they are easy to simulate.  
+Here is a simple example:
+```
+WILD PIDGEY APPEARED
+LEVEL PIDGEY 0
+
+BATTLE PIDGEY WEAKER THAN 10
+	PIDGEY LEVELED UP
 	(- code -)
 OKAY
 ```
