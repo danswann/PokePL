@@ -10,7 +10,7 @@ Therefore, additional whitespace beyond the newline characters is not required, 
 ###Blocks
 In PokePL, blocks (such as conditionals and loops) begin with their respective syntax and are terminated by an `OKAY` statement.  
 More details below.
-##Grouping
+###Grouping
 Instead of traditional parentheses, grouping is done using Pokeball halfs. `(-` will open a group and `-)` will close it.  
 For example:  
 `(- 5 WITH 3 -) BY 2`  
