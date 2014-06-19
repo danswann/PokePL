@@ -1,5 +1,7 @@
 #Documentation
-##Section 1 - Style and Structure
+##Section 1 - Rules, Style, and Structure
+###Data Types
+PokePL has two primitive types: strings and numbers.
 ###Comments
 In PokePL, comments are denoted using `~`.  
 `~this is a sample comment`  
@@ -27,9 +29,9 @@ Conversely, to destroy a variable, use:
 `WILD <varname> FAINTED`
 
 Once declared, they can be assigned a value. The syntax depends on the type of data and whether they are being assigned a literal, another variable, or an expression.  
-To assign a literal number value to a variable name, use:  
+To assign a literal string value to a variable name, use:  
 `NAME <varname> <literal>`  
-and to assign a literal string value to a variable name, use:  
+and to assign a literal number value to a variable name, use:  
 `LEVEL <varname> <literal>`
 
 To assign another variable or an expression to the variable, however, the `LIKE` keywords must be used, i.e:  
