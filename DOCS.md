@@ -100,3 +100,19 @@ BATTLE PIDGEY WEAKER THAN 10
 	~code
 OKAY
 ```
+
+##Section 7 - Built-in Functions
+Built-in functions in PokePL are named after moves from the first generation Pokemon games, and use the following syntax:  
+`<varname> USED <funcname>`
+
+For functions that require additional parameters, use the `ON` keyword:  
+`<varname> USED <funcname> ON <value>`
+
+###I/O Functions
+`GROWL` will output the value of the variable calling it to the terminal.  
+For example, the basic Hello World program may be written as follows:  
+```
+WILD BULBASAUR APPEARED
+NAME BULBASAUR "Hello World!"
+BULBASAUR USED GROWL
+```
