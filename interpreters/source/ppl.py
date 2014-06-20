@@ -12,15 +12,15 @@ VARS = {'BULBASAUR': None, 'IVYSAUR': None, 'VENAUSAUR': None, 'CHARMANDER': Non
 		'CHARIZARD': None, 'SQUIRTLE': None, 'WARTORTLE': None, 'BLASTOISE': None, 'CATERPIE': None, 'METAPOD': None,
 		'BUTTERFREE': None, 'WEEDLE': None, 'KAKUNA': None, 'BEEDRILL': None, 'PIDGEY': None, 'PIDGEOTTO': None,
 		'PIDGEOT': None, 'RATTATA': None, 'RATICATE': None, 'SPEAROW': None, 'FEAROW': None, 'EKANS': None,
-		'ARBOK': None, 'PIKACHU': None, 'RAICHU': None, 'SANDSHREW': None, 'SANDSLASH': None, 'NIDORANM': None,
-		'NIDORINA': None, 'NIDOQUEEN': None, 'NIDORANF': None, 'NIDORINO': None, 'NIDOKING': None, 'CLEAFAIRY': None,
+		'ARBOK': None, 'PIKACHU': None, 'RAICHU': None, 'SANDSHREW': None, 'SANDSLASH': None, 'NIDORANF': None,
+		'NIDORINA': None, 'NIDOQUEEN': None, 'NIDORANM': None, 'NIDORINO': None, 'NIDOKING': None, 'CLEAFAIRY': None,
 		'CLEFABLE': None, 'VULPIX': None, 'NINETALES': None, 'JIGGLYPUFF': None, 'WIGGLYTUFF': None, 'ZUBAT': None,
 		'GOLBAT': None, 'ODDISH': None, 'GLOOM': None, 'VILEPLUME': None, 'PARAS': None, 'PARASECT': None,
 		'VENONAT': None, 'VENOMOTH': None, 'DIGLETT': None, 'DUGTRIO': None, 'MEOWTH': None, 'PERSIAN': None,
 		'PSYDUCK': None, 'GOLDUCK': None, 'MANKEY': None, 'PRIMEAPE': None, 'GROWLITHE': None, 'ARCANINE': None,
 		'POLIWAG': None, 'POLIWHIRL': None, 'ABRA': None, 'KADABRA': None, 'ALAKAZAM': None, 'MACHOP': None,
 		'MACHOKE': None, 'MACHAMP': None, 'BELLSPROUT': None, 'WEEPINBELL': None, 'VICTREEBEL': None, 'TENTACOOL': None,
-		'TENTACRUEL': None, 'GEODUDE': None, 'GRAVELER': None, 'GOLEN': None, 'PONYTA': None, 'RAPIDASH': None,
+		'TENTACRUEL': None, 'GEODUDE': None, 'GRAVELER': None, 'GOLEM': None, 'PONYTA': None, 'RAPIDASH': None,
 		'SLOWPOKE': None, 'SLOWBRO': None, 'MAGNEMITE': None, 'MAGNETON': None, 'FARFETCHD': None, 'DODUO': None,
 		'DODRIO': None, 'SEEL': None, 'DEWGONG': None, 'GRIMER': None, 'MUK': None, 'SHELLDER': None, 'CLOYSTER': None,
 		'GASTLY': None, 'HAUNTER': None, 'GENGAR': None, 'ONIX': None, 'DROWZEE': None, 'HYPNO': None, 'KRABBY': None,
@@ -34,16 +34,108 @@ VARS = {'BULBASAUR': None, 'IVYSAUR': None, 'VENAUSAUR': None, 'CHARMANDER': Non
 		'KABUTOPS': None, 'AERODACTYL': None, 'SNORLAX': None, 'ARTICUNO': None, 'ZAPDOS': None, 'MOLTRES': None,
 		'DRATINI': None, 'DRAGONAIR': None, 'DRAGONITE': None, 'MEWTWO': None, 'MEW': None}
 
+
+def evaluate_string(body):
+	if str(type(body)) == "<class '_sre.SRE_Match'>":
+		return evaluate_string(body.group(1))
+	body = re.sub('\(-([^\(\)-])+-\)', evaluate_string, body)
+	prog = re.match('(.+?) JOIN (.+)', body)
+	if prog is not None:
+		body = evaluate_string(prog.group(1) + " JOIN "+evaluate_string(prog.group(3)))
+	prog = re.match('([a-zA-Z]+)', body)
+	if prog.group(1).upper() in DECLARED:
+		body = VARS[prog.group(1).upper()]
+	else:
+		raise PokException("Attempt to evaluate undeclared species %s as a string." % prog.group(1))
+	prog = re.match('["\'](.+?)["\']', body)
+	if prog is not None:
+		body = prog.group(1)
+	return str(body)
+
+
+def evaluate_num(body):
+	if str(type(body)) == "<class '_sre.SRE_Match'>":
+		return evaluate_num(body.group(1))
+	body = re.sub('\(-([^\(\)-])+-\)', evaluate_num, body)
+	prog = re.match('(.+?) (BY|OVER) (.+)', body)
+	if prog is not None:
+		body = str(evaluate_num(prog.group(1))) + " " + prog.group(2) + " " + str(evaluate_num(prog.group(3)))
+	prog = re.match('(.+?) (WITH|LESS) (.+)', body)
+	if prog is not None:
+		body = str(evaluate_num(prog.group(1))) + " " + prog.group(2) + " " + str(evaluate_num(prog.group(3)))
+	prog = re.match('([a-zA-Z]+)', body)
+	if prog is not None:
+		name = prog.group(1).upper()
+		if name in DECLARED:
+			body = body.replace(name, str(VARS[name]))
+		else:
+			raise PokException("Attempt to evaluate undeclared species %s as a number." % prog.group(1))
+	prog = re.match('(\d+\.?\d*) (BY|OVER) (\d+\.?\d*)', body)
+	if prog is not None:
+		if prog.group(2) == "BY":
+			body = str(float(prog.group(1)) * float(prog.group(3)))
+		else:
+			body = str(float(prog.group(1)) / float(prog.group(3)))
+	prog = re.match('(\d+\.?\d*) (WITH|LESS) (\d+\.?\d*)', body)
+	if prog is not None:
+		if prog.group(2) == "WITH":
+			body = str(float(prog.group(1)) + float(prog.group(3)))
+		else:
+			body = str(float(prog.group(1)) - float(prog.group(3)))
+	prog = re.match('(\d+\.?\d*)', body)
+	if prog is not None:
+		return float(body)
+	else:
+		raise PokException("Unknown error attempting to evaluate num.")
+
+
+def evaluate_bool(body):
+	if str(type(body)) == "<class 'sre.SRE_Match'>":
+		return evaluate_bool(body.group(1))
+	body = re.sub('\(-([^\(\)-])+-\)', evaluate_bool, body)
+	prog = re.match('(.+?) (AND|OR) (.+)', body)
+	if prog is not None:
+		body = str(evaluate_bool(prog.group(1))) + " " + prog.group(2) + " " + str(evaluate_bool(prog.group(3)))
+	prog = re.match('NOT (.+)', body)
+	if prog is not None:
+		body = str(not evaluate_bool(prog.group(1)))
+	prog = re.match('(.+?) (SAME NAME AS|SAME LEVEL AS|STRONGER THAN|WEAKER THAN) (.+)', body)
+	if prog is not None:
+		if prog.group(2) == "SAME NAME AS":
+			body = str(evaluate_string(prog.group(1)) == evaluate_string(prog.group(3)))
+		elif prog.group(2) == "SAME LEVEL AS":
+			body = str(evaluate_num(prog.group(1)) == evaluate_num(prog.group(3)))
+		elif prog.group(2) == "STRONGER THAN":
+			body = str(evaluate_num(prog.group(1)) > evaluate_num(prog.group(3)))
+		else:
+			body = str(evaluate_num(prog.group(1)) < evaluate_num(prog.group(3)))
+	prog = re.match('(True|False) (AND|OR) (True|False)', body)
+	if prog is not None:
+		if prog.group(2) == "AND":
+			body = str(True if prog.group(1) == "True" and prog.group(3) == "True" else False)
+		else:
+			body = str(True if prog.group(1) == "True" or prog.group(3) == "True" else False)
+	prog = re.match('(True|False)', body)
+	if prog is not None:
+		return True if prog.group(1) == "True" else False
+	else:
+		raise PokException("Unknown error attempting to evaluate bool.")
+
+
 def process(body):
 	lines = body.split("\n")
-	parenlvl = 0
 	blocklvl = 0
-	blockline = 0
+	blockline = []
 
 	i = 0
 	while i < len(lines):
 		line = lines[i].strip()
 		lineno = i + 1
+
+		#COMMENTS AND BLANKS
+		if line == "" or line[0] == "~":
+			i += 1
+			continue
 
 		#DECLARATION
 		prog = re.match('WILD ([a-zA-Z]+) APPEARED', line)
@@ -52,6 +144,7 @@ def process(body):
 			if name in VARS:
 				if not name in DECLARED:
 					DECLARED.append(name)
+					i += 1
 					continue
 				else:
 					raise PokException("Species %s has already been declared (line %d)." % (prog.group(1), lineno))
@@ -66,6 +159,7 @@ def process(body):
 				if name in DECLARED:
 					DECLARED.remove(name)
 					VARS[name] = None
+					i += 1
 					continue
 				else:
 					raise PokException("Attempt to delete undeclared species %s (line %d)." % (prog.group(1), lineno))
@@ -78,6 +172,7 @@ def process(body):
 			name = prog.group(1).upper()
 			if name in DECLARED:
 				VARS[name] = prog.group(2)
+				i += 1
 				continue
 			else:
 				raise PokException("Attempt to assign '%s' to undeclared species %s (line %d)" % (prog.group(2), prog.group(1), lineno))
@@ -86,11 +181,80 @@ def process(body):
 			name = prog.group(1).upper()
 			if name in DECLARED:
 				VARS[name] = float(prog.group(2))
+				i += 1
 				continue
 			else:
 				raise PokException("Attempt to assign %s to undeclared species %s (line %d)" % (prog.group(2), prog.group(1), lineno))
 
-		#
+		#ADVANCED ASSIGNMENT
+		prog = re.match('NAME ([a-zA-Z]+) LIKE (.+)', line)
+		if prog is not None:
+			name = prog.group(1).upper()
+			if name in DECLARED:
+				VARS[name] = evaluate_string(prog.group(2))
+				i += 1
+				continue
+			else:
+				raise PokException("Attempt to assign to undeclared species %s (line %d)" % (prog.group(1), lineno))
+		prog = re.match('LEVEL ([a-zA-Z]+) LIKE (.+)', line)
+		if prog is not None:
+			name = prog.group(1).upper()
+			if name in DECLARED:
+				VARS[name] = evaluate_num(prog.group(2))
+				i += 1
+				continue
+			else:
+				raise PokException("Attempt to assign to undeclared species %s (line %d)" % (prog.group(1), lineno))
+
+		#BLOCKS
+		prog = re.match('IF (.+?)\?', line)
+		if prog is not None:
+			if evaluate_bool(prog.group(1)):
+				blockline.append(i)
+				blocklvl += 1
+				i += 1
+			else:
+				while lines[i] is not "OKAY":
+					i += 1
+			continue
+		prog = re.match('BATTLE (.+)', line)
+		if prog is not None:
+			if evaluate_bool(prog.group(1)):
+				blockline.append(i)
+				blocklvl += 1
+			else:
+				while lines[i] != "OKAY":
+					i += 1
+			i += 1
+			continue
+		if line == "OKAY":
+			i = blockline.pop()
+			blocklvl -= 1
+			continue
+
+		#FUNCTIONS
+		prog = re.match('([a-zA-Z]+) USED ([A-Z]+)', line)
+		if prog is not None:
+			name = prog.group(1).upper()
+			if name not in DECLARED:
+				raise PokException("Attempt to call function by undeclared species %s (line %d)" % (prog.group(1), lineno))
+			if prog.group(2) == "GROWL":
+				print(VARS[name])
+				i += 1
+				continue
+			elif prog.group(2) == "SUBSTITUTE":
+				VARS[name] = input(prog.group(1) + "?: ")
+				i += 1
+				continue
+
+		raise PokException("Cannot interpret line %s (%d)" % (line, lineno))
 
 
-		i += 1
+if __name__ == "__main__":
+	if len(sys.argv) == 2:
+		f = open(sys.argv[1])
+		process(f.read())
+		f.close()
+	else:
+		print("ppl.py <filename>")
+		sys.exit(1)
