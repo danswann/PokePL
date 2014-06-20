@@ -54,8 +54,8 @@ concatenation: `<value> JOIN <value>`
 negation: `NOT <value>`  
 and: `<expression> AND <expression>`  
 or: `<expression> OR <expression>`  
-equality (string): `<value> SAME NAME AS <value>` 
-equality (num): `<value> SAME LEVEL AS <value>`
+equality (string): `<value> SAME NAME AS <value>`  
+equality (num): `<value> SAME LEVEL AS <value>`  
 greater than: `<value> STRONGER THAN <value>`  
 less than: `<value> WEAKER THAN <value>`
 
