@@ -138,7 +138,6 @@ def finalize_bool(x):
 
 def process(body):
 	lines = body.split("\n")
-	blocklvl = 0
 	blockdata = []
 
 	i = 0
@@ -223,34 +222,42 @@ def process(body):
 		#BLOCKS
 		prog = re.match('IS (.+?)\?', line)
 		if prog is not None:
+			blockdata.append({"type": "IS", "val": i, "active": False})
 			if finalize_bool(evaluate_bool(prog.group(1))):
-				blockdata.append({"type": "IS", "val": i})
-				blocklvl += 1
+				blockdata[len(blockdata) - 1]['active'] = True
+				i += 1
 			else:
-				while lines[i] != "OKAY":
+				count = 1
+				while count > 0:
 					i += 1
-			i += 1
+					l = lines[i].strip()
+					if l[:2] == "IS" or l[:6] == "BATTLE":
+						count += 1
+					elif l == "OKAY":
+						count -= 1
 			continue
 		prog = re.match('BATTLE (.+)', line)
 		if prog is not None:
+			blockdata.append({"type": "BATTLE", "val": i, "active": False})
 			if finalize_bool(evaluate_bool(prog.group(1))):
-				blockdata.append({"type": "BATTLE", "val": i})
-				blocklvl += 1
+				blockdata[len(blockdata) - 1]['active'] = True
+				i += 1
 			else:
-				while lines[i] != "OKAY":
+				count = 1
+				while count > 0:
 					i += 1
-			i += 1
+					l = lines[i].strip()
+					if l[:2] == "IS" or l[:6] == "BATTLE":
+						count += 1
+					elif l == "OKAY":
+						count -= 1
 			continue
 		if line == "OKAY":
-			try:
-				data = blockdata.pop()
-				if data['type'] == "BATTLE":
-					i = data['val']
-				else:
-					i += 1
-			except IndexError:
+			data = blockdata.pop()
+			if data['type'] == "BATTLE" and data['active'] is True:
+				i = data['val']
+			else:
 				i += 1
-			blocklvl -= 1
 			continue
 
 		#FUNCTIONS
