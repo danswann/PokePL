@@ -66,18 +66,6 @@ IS BULBASAUR SAME AS SQUIRTLE?
 OKAY
 ```
 
-Like most languages, if blocks can be extended to include elif and else.  
-In such a case the `OKAY` statement will terminate the _entire_ block chain.  
-```
-IS BULBASAUR SAME AS SQUIRTLE?  
-	~code
-OR IS BULBASAUR SAME AS CHARMANDER?
-	~code
-NO?
-	~code
-OKAY
-```
-
 ##Section 6 - Loops
 There is only one type of loop in PokePL. It is the equivalnet of most languages' "while" loops.  
 The syntax is as follows:
