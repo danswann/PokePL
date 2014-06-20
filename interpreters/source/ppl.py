@@ -244,7 +244,7 @@ def process(body):
 			try:
 				data = blockdata.pop()
 				if data['type'] == "BATTLE":
-					i = data.val
+					i = data['val']
 				else:
 					i += 1
 			except IndexError:
