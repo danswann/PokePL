@@ -104,3 +104,12 @@ WILD BULBASAUR APPEARED
 NAME BULBASAUR "Hello World!"
 BULBASAUR USED GROWL
 ```
+###Random Numbers
+`METRONOME` will generate a random number between 0 and `<value>` and put the result in `<varname>`  
+For example, generating a number between 0 and 100 and putting the result in a variable called `CLEFAIRY` may be written as follows:
+```
+WILD BULBASAUR APPEARED
+LEVEL BULBASAUR 100
+WILD CLEFAIRY APPEARED
+CLEFAIRY USED METRONOME ON BULBASAUR
+```
