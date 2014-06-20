@@ -96,6 +96,29 @@ Built-in functions in PokePL are named after moves from the first generation Pok
 For functions that require additional parameters, use the `ON` keyword:  
 `<varname> USED <funcname> ON <value>`
 
+###Basic Functions
+`CONVERSION` will attempt to cast a string to a number.  
+Calling it alone will perform it on the calling variable, but using `ON` will cast the passed variable.
+```
+WILD GROWLITHE APPEARED
+NAME GROWLITHE '5'
+GROWLITHE  USED CONVERSION
+~5
+
+WILD ARCANINE APPEARED
+NAME ARCANINE '23'
+GROWLITH USED CONVERSION ON ARCANINE
+~23
+```
+
+`TRANSFORM` works similarly to `CONVERSION`, but will attempt to cast a number to a string.
+```
+WILD ZAPDOS APPEARED
+LEVEL ZAPDOS 10
+ZAPDOS USED TRANSFORM
+~'10'
+```
+
 ###I/O Functions
 `GROWL` will output the value of the variable calling it to the terminal.  
 For example, the basic Hello World program may be written as follows:  
@@ -103,4 +126,37 @@ For example, the basic Hello World program may be written as follows:
 WILD BULBASAUR APPEARED
 NAME BULBASAUR "Hello World!"
 BULBASAUR USED GROWL
+```
+
+`SUBSTITUTE` will prompt the user to input a value for the variable, which will _always_ be stored as a string.  
+For example, an echo program looks like:
+```
+WILD CHARMANDER APPEARED
+CHARMANDER USED MIMIC
+CHARMANDER USED GROWL
+```
+
+`MIMIC` will open a file and store its contents as a string in the calling variable. For example:
+```
+WILD MUK APPEARED
+MUK USED MIMIC ON "file.txt"
+MUK USED GROWL
+```
+will echo the contents of a file.
+
+Conversely, `ROAR` will dump the contents of a variable into the file, creating it if it does not exist.
+```
+WILD MUK APPEARED
+NAME MUK "test data"
+MUK USED ROAR ON "file.txt"
+```
+
+###Random Numbers
+`METRONOME` will generate a random number between 0 and `<value>` and put the result in `<varname>`  
+For example, generating a number between 0 and 100 and putting the result in a variable called `CLEFAIRY` may be written as follows:
+```
+WILD BULBASAUR APPEARED
+LEVEL BULBASAUR 100
+WILD CLEFAIRY APPEARED
+CLEFAIRY USED METRONOME ON BULBASAUR
 ```

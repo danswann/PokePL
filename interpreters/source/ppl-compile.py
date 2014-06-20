@@ -42,9 +42,12 @@ def convert(text):
 			indentlevel -= 1
 
 		if "USED" in line:
-			prog = re.match("([a-zA-Z]+) USED ([a-zA-Z]+)", line)
-			if prog is not None and prog.group(2) == "GROWL":
-				line = "print(%s)" % prog.group(1)
+			prog = re.match("([a-zA-Z]+) USED ([a-zA-Z]+)(?: ON ([a-zA-Z0-9]+))?", line)
+			if prog is not None:
+				if prog.group(2) == "GROWL":
+					line = "print(%s)" % prog.group(1)
+				elif prog.group(2) == "SUBSTITUTE":
+					line = "%s = input('%s?: ')" % (prog.group(1), prog.group(1))
 
 		for i in range(indentlevel):
 			line = "\t"+line
@@ -63,5 +66,5 @@ if __name__ == "__main__":
 		f.close()
 		exec(convert(d))
 	else:
-		print("pokepl.py <filename>")
+		print("ppl-compile.py <filename>")
 		sys.exit(1)
