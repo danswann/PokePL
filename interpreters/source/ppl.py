@@ -226,10 +226,10 @@ def process(body):
 			if finalize_bool(evaluate_bool(prog.group(1))):
 				blockdata.append({"type": "IS", "val": i})
 				blocklvl += 1
-				i += 1
 			else:
 				while lines[i] != "OKAY":
 					i += 1
+			i += 1
 			continue
 		prog = re.match('BATTLE (.+)', line)
 		if prog is not None:
@@ -317,5 +317,5 @@ if __name__ == "__main__":
 		process(f.read())
 		f.close()
 	else:
-		print("ppl.py <filename>")
+		print("ppl <filename>")
 		sys.exit(1)
