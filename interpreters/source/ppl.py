@@ -1,3 +1,4 @@
+import random
 import re
 import sys
 
@@ -38,25 +39,32 @@ VARS = {'BULBASAUR': None, 'IVYSAUR': None, 'VENAUSAUR': None, 'CHARMANDER': Non
 def evaluate_string(body):
 	if str(type(body)) == "<class '_sre.SRE_Match'>":
 		return evaluate_string(body.group(1))
-	body = re.sub('\(-([^\(\)-])+-\)', evaluate_string, body)
+	while "(-" in body and "-)" in body:
+		body = re.sub('\(-([^\(\)-]+)-\)', evaluate_string, body)
 	prog = re.match('(.+?) JOIN (.+)', body)
 	if prog is not None:
-		body = evaluate_string(prog.group(1) + " JOIN "+evaluate_string(prog.group(3)))
+		if re.match('["\'](.+?)["\']', prog.group(1)) is not None and re.match('["\'](.+?)["\']', prog.group(2)) is not None:
+			body = prog.group(1) + prog.group(2)
+			body = "\"" + body.replace("'","").replace("\"", "") + "\""
+			return body
+		else:
+			body = evaluate_string(prog.group(1) + " JOIN " + evaluate_string(prog.group(2)))
 	prog = re.match('([a-zA-Z]+)', body)
-	if prog.group(1).upper() in DECLARED:
-		body = VARS[prog.group(1).upper()]
-	else:
-		raise PokException("Attempt to evaluate undeclared species %s as a string." % prog.group(1))
-	prog = re.match('["\'](.+?)["\']', body)
 	if prog is not None:
-		body = prog.group(1)
+		if prog.group(1).upper() in DECLARED:
+			body = "\"" + VARS[prog.group(1).upper()] + "\""
 	return str(body)
+
+
+def finalize_string(x):
+	return x[1:-1]
 
 
 def evaluate_num(body):
 	if str(type(body)) == "<class '_sre.SRE_Match'>":
 		return evaluate_num(body.group(1))
-	body = re.sub('\(-([^\(\)-])+-\)', evaluate_num, body)
+	while "(-" in body and "-)" in body:
+		body = re.sub('\(-([^\(\)-]+)-\)', evaluate_num, body)
 	prog = re.match('(.+?) (BY|OVER) (.+)', body)
 	if prog is not None:
 		body = str(evaluate_num(prog.group(1))) + " " + prog.group(2) + " " + str(evaluate_num(prog.group(3)))
@@ -84,31 +92,32 @@ def evaluate_num(body):
 			body = str(float(prog.group(1)) - float(prog.group(3)))
 	prog = re.match('(\d+\.?\d*)', body)
 	if prog is not None:
-		return float(body)
+		return body
 	else:
 		raise PokException("Unknown error attempting to evaluate num.")
 
 
 def evaluate_bool(body):
-	if str(type(body)) == "<class 'sre.SRE_Match'>":
+	if str(type(body)) == "<class '_sre.SRE_Match'>":
 		return evaluate_bool(body.group(1))
-	body = re.sub('\(-([^\(\)-])+-\)', evaluate_bool, body)
+	while "(-" in body and "-)" in body:
+		body = re.sub('\(-([^\(\)-]+)-\)', evaluate_bool, body)
 	prog = re.match('(.+?) (AND|OR) (.+)', body)
 	if prog is not None:
 		body = str(evaluate_bool(prog.group(1))) + " " + prog.group(2) + " " + str(evaluate_bool(prog.group(3)))
 	prog = re.match('NOT (.+)', body)
 	if prog is not None:
-		body = str(not evaluate_bool(prog.group(1)))
+		body = str(not finalize_bool(evaluate_bool(prog.group(1))))
 	prog = re.match('(.+?) (SAME NAME AS|SAME LEVEL AS|STRONGER THAN|WEAKER THAN) (.+)', body)
 	if prog is not None:
 		if prog.group(2) == "SAME NAME AS":
-			body = str(evaluate_string(prog.group(1)) == evaluate_string(prog.group(3)))
+			body = str(finalize_string(evaluate_string(prog.group(1))) == finalize_string(evaluate_string(prog.group(3))))
 		elif prog.group(2) == "SAME LEVEL AS":
-			body = str(evaluate_num(prog.group(1)) == evaluate_num(prog.group(3)))
+			body = str(float(evaluate_num(prog.group(1))) == float(evaluate_num(prog.group(3))))
 		elif prog.group(2) == "STRONGER THAN":
-			body = str(evaluate_num(prog.group(1)) > evaluate_num(prog.group(3)))
+			body = str(float(evaluate_num(prog.group(1))) > float(evaluate_num(prog.group(3))))
 		else:
-			body = str(evaluate_num(prog.group(1)) < evaluate_num(prog.group(3)))
+			body = str(float(evaluate_num(prog.group(1))) < float(evaluate_num(prog.group(3))))
 	prog = re.match('(True|False) (AND|OR) (True|False)', body)
 	if prog is not None:
 		if prog.group(2) == "AND":
@@ -117,15 +126,19 @@ def evaluate_bool(body):
 			body = str(True if prog.group(1) == "True" or prog.group(3) == "True" else False)
 	prog = re.match('(True|False)', body)
 	if prog is not None:
-		return True if prog.group(1) == "True" else False
+		return str(True if prog.group(1) == "True" else False)
 	else:
 		raise PokException("Unknown error attempting to evaluate bool.")
+
+
+def finalize_bool(x):
+	return True if x == "True" else False
 
 
 def process(body):
 	lines = body.split("\n")
 	blocklvl = 0
-	blockline = []
+	blockdata = []
 
 	i = 0
 	while i < len(lines):
@@ -191,7 +204,7 @@ def process(body):
 		if prog is not None:
 			name = prog.group(1).upper()
 			if name in DECLARED:
-				VARS[name] = evaluate_string(prog.group(2))
+				VARS[name] = finalize_string(evaluate_string(prog.group(2)))
 				i += 1
 				continue
 			else:
@@ -200,27 +213,27 @@ def process(body):
 		if prog is not None:
 			name = prog.group(1).upper()
 			if name in DECLARED:
-				VARS[name] = evaluate_num(prog.group(2))
+				VARS[name] = float(evaluate_num(prog.group(2)))
 				i += 1
 				continue
 			else:
 				raise PokException("Attempt to assign to undeclared species %s (line %d)" % (prog.group(1), lineno))
 
 		#BLOCKS
-		prog = re.match('IF (.+?)\?', line)
+		prog = re.match('IS (.+?)\?', line)
 		if prog is not None:
-			if evaluate_bool(prog.group(1)):
-				blockline.append(i)
+			if finalize_bool(evaluate_bool(prog.group(1))):
+				blockdata.append({"type": "IS", "val": i})
 				blocklvl += 1
 				i += 1
 			else:
-				while lines[i] is not "OKAY":
+				while lines[i] != "OKAY":
 					i += 1
 			continue
 		prog = re.match('BATTLE (.+)', line)
 		if prog is not None:
-			if evaluate_bool(prog.group(1)):
-				blockline.append(i)
+			if finalize_bool(evaluate_bool(prog.group(1))):
+				blockdata.append({"type": "BATTLE", "val": i})
 				blocklvl += 1
 			else:
 				while lines[i] != "OKAY":
@@ -228,22 +241,58 @@ def process(body):
 			i += 1
 			continue
 		if line == "OKAY":
-			i = blockline.pop()
+			try:
+				data = blockdata.pop()
+				if data['type'] == "BATTLE":
+					i = data.val
+				else:
+					i += 1
+			except IndexError:
+				i += 1
 			blocklvl -= 1
 			continue
 
 		#FUNCTIONS
-		prog = re.match('([a-zA-Z]+) USED ([A-Z]+)', line)
+		prog = re.match('([a-zA-Z]+) USED ([A-Z]+)(?: ON (.+))?', line)
 		if prog is not None:
 			name = prog.group(1).upper()
+			func = prog.group(2)
 			if name not in DECLARED:
 				raise PokException("Attempt to call function by undeclared species %s (line %d)" % (prog.group(1), lineno))
-			if prog.group(2) == "GROWL":
+			if func == "CONVERSION":
+				try:
+					orig = prog.group(3)
+				except IndexError:
+					orig = prog.group(1)
+				VARS[name] = float(finalize_string(evaluate_string(orig)))
+				i += 1
+				continue
+
+			elif func == "TRANSFORM":
+				try:
+					orig = prog.group(3)
+				except IndexError:
+					orig = prog.group(1)
+				VARS[name] = str(evaluate_num(orig))
+				i += 1
+				continue
+
+			elif func == "GROWL":
 				print(VARS[name])
 				i += 1
 				continue
-			elif prog.group(2) == "SUBSTITUTE":
+
+			elif func == "SUBSTITUTE":
 				VARS[name] = input(prog.group(1) + "?: ")
+				i += 1
+				continue
+
+			elif func == "METRONOME":
+				try:
+					max = prog.group(3)
+				except IndexError:
+					raise PokException("METRONOME called with no max (line %d)" % lineno)
+				VARS[name] = random.randint(0, int(float(evaluate_num(max))))
 				i += 1
 				continue
 
