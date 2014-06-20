@@ -1,3 +1,4 @@
+import math
 import random
 import re
 import sys
@@ -14,7 +15,7 @@ VARS = {'BULBASAUR': None, 'IVYSAUR': None, 'VENAUSAUR': None, 'CHARMANDER': Non
 		'BUTTERFREE': None, 'WEEDLE': None, 'KAKUNA': None, 'BEEDRILL': None, 'PIDGEY': None, 'PIDGEOTTO': None,
 		'PIDGEOT': None, 'RATTATA': None, 'RATICATE': None, 'SPEAROW': None, 'FEAROW': None, 'EKANS': None,
 		'ARBOK': None, 'PIKACHU': None, 'RAICHU': None, 'SANDSHREW': None, 'SANDSLASH': None, 'NIDORANF': None,
-		'NIDORINA': None, 'NIDOQUEEN': None, 'NIDORANM': None, 'NIDORINO': None, 'NIDOKING': None, 'CLEAFAIRY': None,
+		'NIDORINA': None, 'NIDOQUEEN': None, 'NIDORANM': None, 'NIDORINO': None, 'NIDOKING': None, 'CLEFAIRY': None,
 		'CLEFABLE': None, 'VULPIX': None, 'NINETALES': None, 'JIGGLYPUFF': None, 'WIGGLYTUFF': None, 'ZUBAT': None,
 		'GOLBAT': None, 'ODDISH': None, 'GLOOM': None, 'VILEPLUME': None, 'PARAS': None, 'PARASECT': None,
 		'VENONAT': None, 'VENOMOTH': None, 'DIGLETT': None, 'DUGTRIO': None, 'MEOWTH': None, 'PERSIAN': None,
@@ -260,20 +261,32 @@ def process(body):
 			if name not in DECLARED:
 				raise PokException("Attempt to call function by undeclared species %s (line %d)" % (prog.group(1), lineno))
 			if func == "CONVERSION":
-				try:
-					orig = prog.group(3)
-				except IndexError:
-					orig = prog.group(1)
+				orig = prog.group(3) if prog.group(3) is not None else prog.group(1)
 				VARS[name] = float(finalize_string(evaluate_string(orig)))
 				i += 1
 				continue
 
 			elif func == "TRANSFORM":
-				try:
-					orig = prog.group(3)
-				except IndexError:
-					orig = prog.group(1)
+				orig = prog.group(3) if prog.group(3) is not None else prog.group(1)
 				VARS[name] = str(evaluate_num(orig))
+				i += 1
+				continue
+
+			elif func == "CUT":
+				orig = prog.group(3) if prog.group(3) is not None else prog.group(1)
+				VARS[name] = math.floor(float(evaluate_num(orig)))
+				i += 1
+				continue
+
+			elif func == "FLY":
+				orig = prog.group(3) if prog.group(3) is not None else prog.group(1)
+				VARS[name] = math.ceil(float(evaluate_num(orig)))
+				i += 1
+				continue
+
+			elif func == "CLAMP":
+				orig = prog.group(3) if prog.group(3) is not None else prog.group(1)
+				VARS[name] = round(float(evaluate_num(orig)))
 				i += 1
 				continue
 
@@ -288,11 +301,10 @@ def process(body):
 				continue
 
 			elif func == "METRONOME":
-				try:
-					max = prog.group(3)
-				except IndexError:
+				maxx = prog.group(3)
+				if maxx is None:
 					raise PokException("METRONOME called with no max (line %d)" % lineno)
-				VARS[name] = random.randint(0, int(float(evaluate_num(max))))
+				VARS[name] = random.randint(0, int(float(evaluate_num(maxx))))
 				i += 1
 				continue
 

@@ -119,6 +119,21 @@ LEVEL ZAPDOS 10
 ZAPDOS USED TRANSFORM
 ~'10'
 ```
+###MATH FUNCTIONS
+`CUT` will reduce a number to the nearest integer value.
+
+`FLY` will increase a number to the nearest integer value.
+
+`CLAMP` will round a number to the nearest integer value, away from 0.
+
+`METRONOME` will generate a random number between 0 and `<value>` and put the result in `<varname>`  
+For example, generating a number between 0 and 100 and putting the result in a variable called `CLEFAIRY` may be written as follows:
+```
+WILD BULBASAUR APPEARED
+LEVEL BULBASAUR 100
+WILD CLEFAIRY APPEARED
+CLEFAIRY USED METRONOME ON BULBASAUR
+```
 
 ###I/O Functions
 `GROWL` will output the value of the variable calling it to the terminal.  
@@ -150,14 +165,4 @@ Conversely, `ROAR` will dump the contents of a variable into the file, creating 
 WILD MUK APPEARED
 NAME MUK "test data"
 MUK USED ROAR ON "file.txt"
-```
-
-###Random Numbers
-`METRONOME` will generate a random number between 0 and `<value>` and put the result in `<varname>`  
-For example, generating a number between 0 and 100 and putting the result in a variable called `CLEFAIRY` may be written as follows:
-```
-WILD BULBASAUR APPEARED
-LEVEL BULBASAUR 100
-WILD CLEFAIRY APPEARED
-CLEFAIRY USED METRONOME ON BULBASAUR
 ```
