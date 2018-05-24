@@ -1,24 +1,24 @@
-#Documentation
-##Section 1 - Rules, Style, and Structure
-###Data Types
+# Documentation
+## Section 1 - Rules, Style, and Structure
+### Data Types
 PokePL has two primitive types: strings and numbers.
-###Comments
+### Comments
 In PokePL, comments are denoted using `~`.  
 `~this is a sample comment`  
 Comments may be at the end of a statement, or placed on their own line. Comments in the middle of statements are not valid.
-###Statements
+### Statements
 In PokePL, each line should contain one and only one complete statement. Statements/lines will be executed in order from top to bottom of the source file.  
 Therefore, additional whitespace beyond the newline characters is not required, but you may find it useful for organization and readability.
-###Blocks
+### Blocks
 In PokePL, blocks (such as conditionals and loops) begin with their respective syntax and are terminated by an `OKAY` statement.  
 More details below.
-###Grouping
+### Grouping
 Instead of traditional parentheses, grouping is done using Pokeball halfs. `(-` will open a group and `-)` will close it.  
 For example:  
 `(- 5 WITH 3 -) BY 2`  
 will evaluate to 16.
 
-##Section 2 - Variable Declaration and Assignment
+## Section 2 - Variable Declaration and Assignment
 Variables must be named after one of the original 151 Pokemon.  
 This is case insensitive, so there is a maximum of 151 consecutive variables.  
 
@@ -38,8 +38,8 @@ To assign another variable or an expression to the variable, however, the `LIKE`
 `NAME <varname> LIKE <varname/expression>`  
 `LEVEL <varname> LIKE <varname/expression>`
 
-##Section 3 - Operators
-###Numeric operations
+## Section 3 - Operators
+### Numeric operations
 addition: `<value> WITH <value>`  
 subtraction: `<value> LESS <value>`  
 multiplication: `<value> BY <value>`  
@@ -47,10 +47,10 @@ division: `<value> OVER <value>`
 
 unary increment shorthand: `<varname> LEVELED UP`
 
-###String operations
+### String operations
 concatenation: `<value> JOIN <value>`
 
-##Section 4 - Logic and Comparisons
+## Section 4 - Logic and Comparisons
 negation: `NOT <value>`  
 and: `<expression> AND <expression>`  
 or: `<expression> OR <expression>`  
@@ -59,7 +59,7 @@ equality (num): `<value> SAME LEVEL AS <value>`
 greater than: `<value> STRONGER THAN <value>`  
 less than: `<value> WEAKER THAN <value>`
 
-##Section 5 - Conditional Blocks
+## Section 5 - Conditional Blocks
 If blocks begin with `IS <expression>?` and terminate with a `OKAY` statement.  
 ```
 IS BULBASAUR SAME AS SQUIRTLE?
@@ -67,7 +67,7 @@ IS BULBASAUR SAME AS SQUIRTLE?
 OKAY
 ```
 
-##Section 6 - Loops
+## Section 6 - Loops
 There is only one type of loop in PokePL. It is the equivalnet of most languages' "while" loops.  
 The syntax is as follows:
 ```
@@ -90,14 +90,14 @@ BATTLE PIDGEY WEAKER THAN 10
 OKAY
 ```
 
-##Section 7 - Built-in Functions
+## Section 7 - Built-in Functions
 Built-in functions in PokePL are named after moves from the first generation Pokemon games, and use the following syntax:  
 `<varname> USED <funcname>`
 
 For functions that require additional parameters, use the `ON` keyword:  
 `<varname> USED <funcname> ON <value>`
 
-###Basic Functions
+### Basic Functions
 `CONVERSION` will attempt to cast a string to a number.  
 Calling it alone will perform it on the calling variable, but using `ON` will cast the passed variable.
 ```
@@ -119,7 +119,7 @@ LEVEL ZAPDOS 10
 ZAPDOS USED TRANSFORM
 ~'10'
 ```
-###MATH FUNCTIONS
+### MATH FUNCTIONS
 `CUT` will reduce a number to the nearest integer value.
 
 `FLY` will increase a number to the nearest integer value.
@@ -135,7 +135,7 @@ WILD CLEFAIRY APPEARED
 CLEFAIRY USED METRONOME ON BULBASAUR
 ```
 
-###I/O Functions
+### I/O Functions
 `GROWL` will output the value of the variable calling it to the terminal.  
 For example, the basic Hello World program may be written as follows:  
 ```
